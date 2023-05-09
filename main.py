@@ -1,18 +1,57 @@
-import tensorflow as tf
-from keras.layers import Input
-from keras.applications import vgg16, vgg19, inception_v3, resnet50, efficientnet
-from style_transfer import perform_style_transfer
-from utils import load_image, save_image
+"""
+Neural Style Transfer - Main Entry Point
+
+This module loads pre-trained CNN models and orchestrates the style transfer process.
+Based on "A Neural Algorithm of Artistic Style" by Gatys et al. (2015).
+
+Course: CSE 455 - Computer Vision
+University of Washington
+"""
+
 import os
 
+import tensorflow as tf
+from tensorflow.keras.applications import (
+    efficientnet,
+    inception_v3,
+    resnet50,
+    vgg16,
+    vgg19,
+)
+from tensorflow.keras.layers import Input
+
+from style_transfer import perform_style_transfer
+from utils import load_image, save_image
+
+# GPU Configuration
+# Attempt to use GPU if available, otherwise fall back to CPU
 physical_devices = tf.config.list_physical_devices("GPU")
-tf.config.set_visible_devices(physical_devices[0], "GPU")
+if physical_devices:
+    try:
+        tf.config.set_visible_devices(physical_devices[0], "GPU")
+        tf.config.experimental.set_memory_growth(physical_devices[0], True)
+        print(f"Using GPU: {physical_devices[0]}")
+    except RuntimeError as e:
+        print(f"GPU configuration error: {e}")
+else:
+    print("No GPU found. Using CPU.")
 
 
-def get_cnn_and_layers(model_name):
+def get_model_and_layers(model_name: str):
+    """
+    Load a pre-trained CNN and return the model with appropriate layer names.
+
+    Args:
+        model_name: Name of the model ('VGG16', 'VGG19', 'InceptionV3',
+                    'ResNet50', or 'EfficientNetB0')
+
+    Returns:
+        Tuple of (pretrained_model, content_layer_names, style_layer_names)
+
+    Raises:
+        ValueError: If model_name is not recognized
+    """
     input_shape = (None, None, 3)  # Variable input size, 3 channels (RGB)
-
-    # Create an input tensor with the defined shape
     input_tensor = Input(shape=input_shape)
 
     if model_name == "VGG16":
@@ -71,43 +110,81 @@ def get_cnn_and_layers(model_name):
             "block7a_project_conv",
         ]
     else:
-        raise ValueError("Unknown model")
+        raise ValueError(f"Unknown model: {model_name}")
+
     return pretrained_cnn, content_layers, style_layers
 
 
-models = ["VGG16", "VGG19"]
-# models = ['VGG19', 'InceptionV3', 'ResNet50', 'EfficientNetB0']
-# Commented out due to issues with system memory.
+def main():
+    """Run neural style transfer on all content/style image combinations."""
 
-alpha = 5
-beta = 1
-variation_weight = 30
+    # Models to use for style transfer
+    # Note: InceptionV3, ResNet50, and EfficientNetB0 are commented out due to
+    # memory constraints. Uncomment to experiment if sufficient memory is available.
+    models = ["VGG16", "VGG19"]
+    # models = ["VGG19", "InceptionV3", "ResNet50", "EfficientNetB0"]
 
-contents_directory = "contents"
-styles_directory = "styles"
+    # Loss function weights
+    alpha = 5              # Content weight
+    beta = 1               # Style weight
+    variation_weight = 30  # Total variation weight (encourages smoothness)
 
-# Perform style transfer using each model
-for model_name in models:
-    pretrained_cnn, content_layers, style_layers = get_cnn_and_layers(model_name)
+    # Directory paths
+    contents_directory = "contents"
+    styles_directory = "styles"
+    output_directory = "output"
 
-    for content in [c for c in os.listdir(contents_directory) if c.endswith(".jpg")]:
-        content_image = load_image(f"{contents_directory}/{content}", model_name)
+    # Create output directory if it doesn't exist
+    os.makedirs(output_directory, exist_ok=True)
 
-        for style in [s for s in os.listdir(styles_directory) if s.endswith('.jpg')]:
-            style_image = load_image(f"{styles_directory}/{style}", model_name)
+    # Perform style transfer for each model
+    for model_name in models:
+        print(f"\n{'='*60}")
+        print(f"Processing with {model_name}")
+        print(f"{'='*60}")
 
-            output_image = perform_style_transfer(
-                content_image,
-                style_image,
-                pretrained_cnn,
-                content_layers,
-                style_layers,
-                alpha,
-                beta,
-                variation_weight,
+        pretrained_cnn, content_layers, style_layers = get_model_and_layers(model_name)
+
+        content_files = sorted(
+            [c for c in os.listdir(contents_directory) if c.endswith(".jpg")]
+        )
+        style_files = sorted(
+            [s for s in os.listdir(styles_directory) if s.endswith(".jpg")]
+        )
+
+        for content_file in content_files:
+            content_image = load_image(
+                f"{contents_directory}/{content_file}", model_name
             )
 
-            save_image(
-                f"output_{content.replace('.jpg','')}_{style.replace('.jpg','')}_{model_name}.jpg",
-                output_image,
-            )
+            for style_file in style_files:
+                print(f"\nContent: {content_file}, Style: {style_file}")
+
+                style_image = load_image(
+                    f"{styles_directory}/{style_file}", model_name
+                )
+
+                output_image = perform_style_transfer(
+                    content_image,
+                    style_image,
+                    pretrained_cnn,
+                    content_layers,
+                    style_layers,
+                    alpha,
+                    beta,
+                    variation_weight,
+                )
+
+                # Generate output filename
+                content_name = content_file.replace(".jpg", "")
+                style_name = style_file.replace(".jpg", "")
+                output_path = (
+                    f"{output_directory}/output_{content_name}_{style_name}_{model_name}.jpg"
+                )
+
+                save_image(output_path, output_image)
+                print(f"Saved: {output_path}")
+
+
+if __name__ == "__main__":
+    main()
