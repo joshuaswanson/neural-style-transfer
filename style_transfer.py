@@ -1,89 +1,51 @@
-"""
-Neural Style Transfer - Core Algorithm
-
-This module implements the neural style transfer optimization loop.
-It iteratively updates the generated image to minimize a combination
-of content loss, style loss, and total variation loss.
-"""
+"""Optimization loop for neural style transfer."""
 
 import tensorflow as tf
 
-from utils import (
-    calculate_content_loss,
-    calculate_loss,
-    calculate_style_loss,
-    calculate_variation_loss,
-)
+from models import FeatureExtractor
+from utils import calculate_content_loss, calculate_style_loss, calculate_variation_loss
 
 
 def perform_style_transfer(
     content_image: tf.Tensor,
     style_image: tf.Tensor,
-    pretrained_cnn: tf.keras.Model,
-    content_layers: list[str],
-    style_layers: list[str],
+    extract_features: FeatureExtractor,
     alpha: float,
     beta: float,
     variation_weight: float,
     num_iterations: int = 1000,
+    learning_rate: float = 5.0,
 ) -> tf.Tensor:
+    """Optimize an image, initialized from the content image, toward the style image.
+
+    Images are RGB in [0, 255] with shape (1, H, W, 3).
     """
-    Perform neural style transfer to generate a stylized image.
+    content_targets, _ = extract_features(content_image)
+    _, style_targets = extract_features(style_image)
 
-    Args:
-        content_image: Preprocessed content image tensor
-        style_image: Preprocessed style image tensor
-        pretrained_cnn: Pre-trained CNN model for feature extraction
-        content_layers: List of layer names for content feature extraction
-        style_layers: List of layer names for style feature extraction
-        alpha: Weight for content loss
-        beta: Weight for style loss
-        variation_weight: Weight for total variation loss
-        num_iterations: Number of optimization iterations
+    generated_image = tf.Variable(content_image)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+    optimizer.build([generated_image])
 
-    Returns:
-        Generated image as a numpy array (H, W, C)
-    """
-    # Build feature extraction model
-    outputs = [pretrained_cnn.get_layer(layer).output for layer in content_layers]
-    outputs.extend(pretrained_cnn.get_layer(layer).output for layer in style_layers)
-    model = tf.keras.Model(inputs=pretrained_cnn.input, outputs=outputs)
-
-    # Extract features from content and style images
-    num_content_layers = len(content_layers)
-    content_features = model(content_image)[:num_content_layers]
-    style_features = model(style_image)[num_content_layers:]
-
-    # Initialize generated image with content image
-    generated_image = tf.Variable(content_image, dtype=tf.float32)
-
-    # Set up optimizer
-    optimizer = tf.keras.optimizers.Adam(learning_rate=5.0)
-
-    # Optimization loop
-    for i in range(num_iterations):
+    @tf.function
+    def step():
         with tf.GradientTape() as tape:
-            model_outputs = model(generated_image)
-            content_output = model_outputs[:num_content_layers]
-            style_outputs = model_outputs[num_content_layers:]
-
-            content_loss = calculate_content_loss(content_features, content_output)
-            style_loss = calculate_style_loss(style_features, style_outputs)
+            content_outputs, style_outputs = extract_features(generated_image)
+            content_loss = calculate_content_loss(content_targets, content_outputs)
+            style_loss = calculate_style_loss(style_targets, style_outputs)
             variation_loss = calculate_variation_loss(generated_image)
-            loss = calculate_loss(
-                content_loss, style_loss, variation_loss, alpha, beta, variation_weight
+            loss = (
+                alpha * content_loss
+                + beta * style_loss
+                + variation_weight * variation_loss
             )
+        gradient = tape.gradient(loss, generated_image)
+        optimizer.apply_gradients([(gradient, generated_image)])
+        generated_image.assign(tf.clip_by_value(generated_image, 0.0, 255.0))
+        return loss, content_loss, style_loss, variation_loss
 
-        gradients = tape.gradient(loss, generated_image)
-        optimizer.apply_gradients([(gradients, generated_image)])
-
-        # Clip pixel values to valid range
-        clipped_image = tf.clip_by_value(
-            generated_image, clip_value_min=0.0, clip_value_max=255.0
-        )
-        generated_image.assign(clipped_image)
-
-        # Log progress
+    for i in range(num_iterations):
+        loss, content_loss, style_loss, variation_loss = step()
         if i % 100 == 0:
             print(
                 f"Iteration: {i:4d}, "
@@ -93,4 +55,4 @@ def perform_style_transfer(
                 f"Variation: {variation_loss:.4e}"
             )
 
-    return generated_image.numpy()[0]
+    return tf.convert_to_tensor(generated_image)
