@@ -11,12 +11,9 @@ This project transfers the artistic style of one image onto the content of anoth
 ## Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/joshuaswanson/neural_style_transfer.git
-cd neural_style_transfer
-
-# Install dependencies
-uv add tensorflow numpy Pillow
+git clone https://github.com/joshuaswanson/neural-style-transfer.git
+cd neural-style-transfer
+uv sync
 ```
 
 ## Usage
@@ -27,22 +24,30 @@ uv run main.py
 
 The script will process all images in the `contents/` directory with all styles from `styles/`, saving results to `output/`.
 
-### Configuration
+### Options
 
-Key parameters can be adjusted in `main.py`:
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--models` | `VGG16 VGG19` | Any of `VGG16`, `VGG19`, `InceptionV3`, `ResNet50`, `EfficientNetB0` |
+| `--alpha` | 5 | Content loss weight |
+| `--beta` | 1 | Style loss weight |
+| `--variation-weight` | 30 | Total variation loss weight (smoothness) |
+| `--iterations` | 1000 | Optimization iterations |
+| `--learning-rate` | 5.0 | Adam learning rate |
+| `--contents`, `--styles`, `--output` | `contents/`, `styles/`, `output/` | Image directories |
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `alpha` | 5 | Content loss weight |
-| `beta` | 1 | Style loss weight |
-| `variation_weight` | 30 | Total variation loss weight (smoothness) |
-| `num_iterations` | 1000 | Optimization iterations |
+Example:
+
+```bash
+uv run main.py --models VGG19 --iterations 500 --beta 2
+```
 
 ## Project Structure
 
 ```
-neural_style_transfer/
-├── main.py              # Entry point and model configuration
+neural-style-transfer/
+├── main.py              # Command-line entry point
+├── models.py            # CNN backbones and feature layers
 ├── style_transfer.py    # Core optimization loop
 ├── utils.py             # Image I/O and loss functions
 ├── contents/            # Content images
@@ -55,12 +60,12 @@ neural_style_transfer/
 
 The implementation follows the methodology outlined by Gatys et al.:
 
-1. **Preprocessing:** Load and resize images, apply model-specific preprocessing
+1. **Preprocessing:** Load and resize images. The generated image is optimized in RGB pixel space, and model-specific preprocessing is applied inside the loss
 2. **Feature Extraction:** Use pre-trained VGG networks (without fully connected layers) to extract features
 3. **Content Loss:** Compare feature maps at deep layers between content and generated images
 4. **Style Loss:** Compare Gram matrices of feature maps at multiple layers between style and generated images
 5. **Optimization:** Minimize total loss (content + style + variation) using Adam optimizer
-6. **Postprocessing:** Reverse preprocessing and save the generated image
+6. **Postprocessing:** Clip the generated image to [0, 255] and save it
 
 ### Loss Function
 
@@ -207,7 +212,6 @@ The primary challenge was memory management. Processing larger images or using a
 - Implement memory optimization techniques
 - Experiment with different layer selections for VGG-16
 - Explore Cycle-Consistent GANs for style transfer
-- Add command-line argument support for hyperparameter tuning
 
 ## References
 
