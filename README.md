@@ -188,13 +188,6 @@ The total loss combines three components:
 <img src="output/output_content3_style6_VGG19.jpg" height="168">
 </p>
 
-### Observations
-
-- The unknown Picasso painting with VGG-16 and "Girl with a Mandolin" with VGG-19 produced particularly appealing results
-- VGG-16 tends to replace low-frequency areas with the style image rather than truly integrating the style (noticeable in corners of dog and Matterhorn images)
-- VGG-19 generally provides better style distribution across the entire image
-- Higher resolution outputs would improve quality assessment, but memory constraints limited image dimensions
-
 ## Discussion
 
 ### Challenges
