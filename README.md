@@ -29,11 +29,11 @@ The script will process all images in the `contents/` directory with all styles 
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--models` | `VGG16 VGG19` | Any of `VGG16`, `VGG19`, `InceptionV3`, `ResNet50`, `EfficientNetB0` |
-| `--alpha` | 5 | Content loss weight |
+| `--alpha` | 1 | Content loss weight |
 | `--beta` | 1 | Style loss weight |
-| `--variation-weight` | 30 | Total variation loss weight (smoothness) |
+| `--variation-weight` | 10 | Total variation loss weight (smoothness) |
 | `--iterations` | 1000 | Optimization iterations |
-| `--learning-rate` | 5.0 | Adam learning rate |
+| `--learning-rate` | 2.0 | Adam learning rate |
 | `--contents`, `--styles`, `--output` | `contents/`, `styles/`, `output/` | Image directories |
 
 Example:

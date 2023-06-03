@@ -32,13 +32,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--models", nargs="+", choices=MODELS, default=["VGG16", "VGG19"]
     )
-    parser.add_argument("--alpha", type=float, default=5, help="content loss weight")
+    parser.add_argument("--alpha", type=float, default=1, help="content loss weight")
     parser.add_argument("--beta", type=float, default=1, help="style loss weight")
     parser.add_argument(
-        "--variation-weight", type=float, default=30, help="total variation loss weight"
+        "--variation-weight", type=float, default=10, help="total variation loss weight"
     )
     parser.add_argument("--iterations", type=int, default=1000)
-    parser.add_argument("--learning-rate", type=float, default=5.0)
+    parser.add_argument("--learning-rate", type=float, default=2.0)
     parser.add_argument("--contents", type=Path, default=Path("contents"))
     parser.add_argument("--styles", type=Path, default=Path("styles"))
     parser.add_argument("--output", type=Path, default=Path("output"))
