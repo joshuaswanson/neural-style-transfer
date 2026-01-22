@@ -2,8 +2,7 @@
 
 A TensorFlow implementation of neural style transfer based on ["A Neural Algorithm of Artistic Style"](https://arxiv.org/pdf/1508.06576.pdf) by Gatys et al. (2015).
 
-**Course:** CSE 455 - Computer Vision
-**Institution:** University of Washington
+This was my final project for CSE 455 - Computer Vision at the University of Washington.
 
 ## Overview
 
@@ -16,18 +15,14 @@ This project transfers the artistic style of one image onto the content of anoth
 git clone https://github.com/joshuaswanson/neural_style_transfer.git
 cd neural_style_transfer
 
-# Create a virtual environment (recommended)
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
 # Install dependencies
-pip install -r requirements.txt
+uv add tensorflow numpy Pillow
 ```
 
 ## Usage
 
 ```bash
-python main.py
+uv run main.py
 ```
 
 The script will process all images in the `contents/` directory with all styles from `styles/`, saving results to `output/`.
@@ -53,7 +48,6 @@ neural_style_transfer/
 ├── contents/            # Content images
 ├── styles/              # Style images
 ├── output/              # Generated results
-├── requirements.txt     # Python dependencies
 └── README.md
 ```
 
@@ -80,43 +74,114 @@ The total loss combines three components:
 
 ### Content Images
 
-| | | |
-|:---:|:---:|:---:|
-| ![Dog](contents/content1.jpg) | ![Matterhorn](contents/content2.jpg) | ![Barack Obama](contents/content3.jpg) |
-| Dog | Matterhorn | Barack Obama |
+<p>
+<img src="contents/content1.jpg" height="168" alt="Dog">
+<img src="contents/content2.jpg" height="168" alt="Matterhorn">
+<img src="contents/content3.jpg" height="168" alt="Barack Obama">
+</p>
 
 ### Style Images
 
-| | | |
-|:---:|:---:|:---:|
-| ![Picasso](styles/style1.jpg) | ![Girl with a Mandolin](styles/style2.jpg) | ![The Scream](styles/style3.jpg) |
-| Unknown (Picasso) | "Girl with a Mandolin" (Picasso) | "The Scream" (Munch) |
-| ![The Starry Night](styles/style4.jpg) | ![A Sunday on La Grande Jatte](styles/style5.jpg) | ![Drowning Girl](styles/style6.jpg) |
-| "The Starry Night" (Van Gogh) | "A Sunday on La Grande Jatte" (Seurat) | "Drowning Girl" (Lichtenstein) |
+<p>
+<img src="styles/style1.jpg" height="200" alt="Unknown (Picasso)">
+<img src="styles/style2.jpg" height="200" alt="Girl with a Mandolin (Picasso)">
+<img src="styles/style3.jpg" height="200" alt="The Scream (Munch)">
+</p>
+<p>
+<img src="styles/style4.jpg" height="156" alt="The Starry Night (Van Gogh)">
+<img src="styles/style5.jpg" height="156" alt="A Sunday on La Grande Jatte (Seurat)">
+<img src="styles/style6.jpg" height="156" alt="Drowning Girl (Lichtenstein)">
+</p>
 
 ## Results
 
 ### VGG-16 Results
 
-| Style | Dog | Matterhorn | Obama |
-|:------|:---:|:----------:|:-----:|
-| Unknown Picasso | ![](output/output_content1_style1_VGG16.jpg) | ![](output/output_content2_style1_VGG16.jpg) | ![](output/output_content3_style1_VGG16.jpg) |
-| Girl with a Mandolin | ![](output/output_content1_style2_VGG16.jpg) | ![](output/output_content2_style2_VGG16.jpg) | ![](output/output_content3_style2_VGG16.jpg) |
-| The Scream | ![](output/output_content1_style3_VGG16.jpg) | ![](output/output_content2_style3_VGG16.jpg) | ![](output/output_content3_style3_VGG16.jpg) |
-| The Starry Night | ![](output/output_content1_style4_VGG16.jpg) | ![](output/output_content2_style4_VGG16.jpg) | ![](output/output_content3_style4_VGG16.jpg) |
-| A Sunday on La Grande Jatte | ![](output/output_content1_style5_VGG16.jpg) | ![](output/output_content2_style5_VGG16.jpg) | ![](output/output_content3_style5_VGG16.jpg) |
-| Drowning Girl | ![](output/output_content1_style6_VGG16.jpg) | ![](output/output_content2_style6_VGG16.jpg) | ![](output/output_content3_style6_VGG16.jpg) |
+**Unknown Picasso**
+<p>
+<img src="output/output_content1_style1_VGG16.jpg" height="168">
+<img src="output/output_content2_style1_VGG16.jpg" height="168">
+<img src="output/output_content3_style1_VGG16.jpg" height="168">
+</p>
+
+**Girl with a Mandolin**
+<p>
+<img src="output/output_content1_style2_VGG16.jpg" height="168">
+<img src="output/output_content2_style2_VGG16.jpg" height="168">
+<img src="output/output_content3_style2_VGG16.jpg" height="168">
+</p>
+
+**The Scream**
+<p>
+<img src="output/output_content1_style3_VGG16.jpg" height="168">
+<img src="output/output_content2_style3_VGG16.jpg" height="168">
+<img src="output/output_content3_style3_VGG16.jpg" height="168">
+</p>
+
+**The Starry Night**
+<p>
+<img src="output/output_content1_style4_VGG16.jpg" height="168">
+<img src="output/output_content2_style4_VGG16.jpg" height="168">
+<img src="output/output_content3_style4_VGG16.jpg" height="168">
+</p>
+
+**A Sunday on La Grande Jatte**
+<p>
+<img src="output/output_content1_style5_VGG16.jpg" height="168">
+<img src="output/output_content2_style5_VGG16.jpg" height="168">
+<img src="output/output_content3_style5_VGG16.jpg" height="168">
+</p>
+
+**Drowning Girl**
+<p>
+<img src="output/output_content1_style6_VGG16.jpg" height="168">
+<img src="output/output_content2_style6_VGG16.jpg" height="168">
+<img src="output/output_content3_style6_VGG16.jpg" height="168">
+</p>
 
 ### VGG-19 Results
 
-| Style | Dog | Matterhorn | Obama |
-|:------|:---:|:----------:|:-----:|
-| Unknown Picasso | ![](output/output_content1_style1_VGG19.jpg) | ![](output/output_content2_style1_VGG19.jpg) | ![](output/output_content3_style1_VGG19.jpg) |
-| Girl with a Mandolin | ![](output/output_content1_style2_VGG19.jpg) | ![](output/output_content2_style2_VGG19.jpg) | ![](output/output_content3_style2_VGG19.jpg) |
-| The Scream | ![](output/output_content1_style3_VGG19.jpg) | ![](output/output_content2_style3_VGG19.jpg) | ![](output/output_content3_style3_VGG19.jpg) |
-| The Starry Night | ![](output/output_content1_style4_VGG19.jpg) | ![](output/output_content2_style4_VGG19.jpg) | ![](output/output_content3_style4_VGG19.jpg) |
-| A Sunday on La Grande Jatte | ![](output/output_content1_style5_VGG19.jpg) | ![](output/output_content2_style5_VGG19.jpg) | ![](output/output_content3_style5_VGG19.jpg) |
-| Drowning Girl | ![](output/output_content1_style6_VGG19.jpg) | ![](output/output_content2_style6_VGG19.jpg) | ![](output/output_content3_style6_VGG19.jpg) |
+**Unknown Picasso**
+<p>
+<img src="output/output_content1_style1_VGG19.jpg" height="168">
+<img src="output/output_content2_style1_VGG19.jpg" height="168">
+<img src="output/output_content3_style1_VGG19.jpg" height="168">
+</p>
+
+**Girl with a Mandolin**
+<p>
+<img src="output/output_content1_style2_VGG19.jpg" height="168">
+<img src="output/output_content2_style2_VGG19.jpg" height="168">
+<img src="output/output_content3_style2_VGG19.jpg" height="168">
+</p>
+
+**The Scream**
+<p>
+<img src="output/output_content1_style3_VGG19.jpg" height="168">
+<img src="output/output_content2_style3_VGG19.jpg" height="168">
+<img src="output/output_content3_style3_VGG19.jpg" height="168">
+</p>
+
+**The Starry Night**
+<p>
+<img src="output/output_content1_style4_VGG19.jpg" height="168">
+<img src="output/output_content2_style4_VGG19.jpg" height="168">
+<img src="output/output_content3_style4_VGG19.jpg" height="168">
+</p>
+
+**A Sunday on La Grande Jatte**
+<p>
+<img src="output/output_content1_style5_VGG19.jpg" height="168">
+<img src="output/output_content2_style5_VGG19.jpg" height="168">
+<img src="output/output_content3_style5_VGG19.jpg" height="168">
+</p>
+
+**Drowning Girl**
+<p>
+<img src="output/output_content1_style6_VGG19.jpg" height="168">
+<img src="output/output_content2_style6_VGG19.jpg" height="168">
+<img src="output/output_content3_style6_VGG19.jpg" height="168">
+</p>
 
 ### Observations
 
